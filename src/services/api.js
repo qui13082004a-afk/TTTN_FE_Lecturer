@@ -137,10 +137,13 @@ export const createClass = async (classData) => {
       id_giang_vien: user.id,
       ten_lop: classData.title,
       ma_lop: "AUTO_GEN_" + Date.now(),
-      id_mon_hoc: 401,
+      id_mon_hoc: 401, 
       hoc_ky: classData.semester,
-      si_so_toi_da: Number(classData.maxStudents),
-      so_nhom_toi_da: Number(classData.maxGroups),
+      
+      // ĐÃ SỬA: Cố định một con số rất lớn thay vì lấy từ Form
+      si_so_toi_da: 999, 
+      so_nhom_toi_da: 99, 
+      
       mo_ta: classData.title,
       han_chot_dang_ky: classData.deadline + " 23:59:59"
     };
@@ -189,22 +192,24 @@ export const fetchStudents = async (classId, searchQuery = "") => {
     return beStudents.map(st => ({
       id: st.id_sinh_vien,
       mssv: st.mssv,
-      name: st.ho_ten,
+      name: st.ho_ten, 
+      maLop: st.ma_lop || "", 
       email: st.email,
-      group: st.ten_nhom || "X" 
+      // ĐÃ SỬA CHỖ NÀY: Chui vào object group để lấy ten_nhom, nếu không có thì gán là "X"
+      group: st.group?.ten_nhom || "X" 
     }));
   } catch (error) {
     console.error("Lỗi lấy danh sách sinh viên:", error);
     return [];
   }
 };
-
 export const uploadStudentExcel = async (file, classId) => {
   try {
     const formData = new FormData();
-    formData.append('file', file); 
+    formData.append('file', file); // Bây giờ chỉ cần ném mỗi cái file vào hộp là đủ
 
-    const response = await api.post(`/import/import-sinh-vien`, formData, {
+    // ĐÃ SỬA: Thay thế bằng đường link API mới kẹp classId vào thẳng URL
+    const response = await api.post(`/classes/${classId}/students/import`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
 
@@ -232,15 +237,26 @@ export const fetchClassInfo = async (classId) => {
     ]);
 
     const info = infoRes.data;
-    const stats = statsRes.data;
+    const summary = statsRes.data;
+
+    // TỰ ĐỘNG TÍNH THỜI GIAN HẾT HẠN NGAY TRÊN TRÌNH DUYỆT
+    const deadlineStr = summary.han_chot_dang_ky || info.han_chot_dang_ky || info.class?.han_chot_dang_ky;
+    let isExpiredReal = summary.registration_status?.is_expired || false;
+
+    if (deadlineStr) {
+      const deadlineDate = new Date(deadlineStr).getTime();
+      const now = new Date().getTime();
+      // Nếu thời gian hiện tại lớn hơn hạn chót -> Đã hết hạn
+      isExpiredReal = now > deadlineDate; 
+    }
 
     return {
       id: classId,
       name: info.ten_lop || info.class?.ten_lop || "Chi tiết lớp",
-      assignedStudents: stats.da_co_nhom || 0,
-      totalStudents: stats.tong_sinh_vien || 0,
-      totalGroups: stats.tong_so_nhom || 0,
-      isExpired: stats.da_het_han || false 
+      assignedStudents: summary.stats?.grouped_students || 0,
+      totalStudents: summary.stats?.total_students || 0,
+      totalGroups: summary.stats?.total_groups || 0, 
+      isExpired: isExpiredReal // Trả về kết quả thực tế theo đồng hồ
     };
   } catch (error) {
     console.error("Lỗi lấy thông tin lớp:", error);
@@ -458,8 +474,25 @@ export const changePassword = async (passwordData) => {
 // 9. MOCK DATA (GIỮ LẠI ĐỂ KHÔNG BỊ CRASH TRANG GROUP DETAIL)
 // =========================================================
 
-export const fetchGroupMembers = async () => {
-  return new Promise((resolve) => setTimeout(() => resolve([]), 500));
+export const fetchGroupMembers = async (groupId) => {
+  try {
+    const response = await api.get(`/groups/${groupId}/students`);
+    
+    // ĐÃ SỬA: Chui vào đúng 2 lớp (data -> students) theo y hệt ảnh Postman
+    const members = response.data?.data?.students || [];
+    
+    return members.map(m => ({
+      id: m.id_sinh_vien,
+      mssv: m.mssv,
+      name: m.ho_ten,
+      email: m.email,
+      role: m.vai_tro_noi_bo,
+      joinDate: m.ngay_gia_nhap
+    }));
+  } catch (error) {
+    console.error("Lỗi lấy danh sách thành viên:", error);
+    return [];
+  }
 };
 export const fetchGroupMessages = async () => {
   return new Promise((resolve) => setTimeout(() => resolve([]), 500));

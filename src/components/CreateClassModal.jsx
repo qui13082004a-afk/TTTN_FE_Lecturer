@@ -106,27 +106,6 @@ export default function CreateClassModal({ isOpen, onClose, onSubmit }) {
 
           <div className="grid grid-cols-2 gap-6">
             <div className="space-y-1.5">
-              <label className="text-sm font-bold text-gray-700">Số sinh viên</label>
-              <div className="flex items-center border border-gray-300 rounded-xl overflow-hidden">
-                <button type="button" onClick={() => setFormData({...formData, studentCount: Math.max(0, formData.studentCount - 1)})} className="px-3 py-2 bg-gray-100 hover:bg-gray-200 disabled:opacity-50" disabled={formData.studentCount <= 0}><Minus size={16}/></button>
-                <input type="number" className="w-full text-center focus:outline-none bg-transparent font-medium" value={formData.studentCount} readOnly />
-                <button type="button" onClick={() => setFormData({...formData, studentCount: formData.studentCount + 1})} className="px-3 py-2 bg-gray-100 hover:bg-gray-200"><Plus size={16}/></button>
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-sm font-bold text-gray-700">Số nhóm tối đa</label>
-              <div className="flex items-center border border-gray-300 rounded-xl overflow-hidden">
-                <button type="button" onClick={() => setFormData({...formData, groupCount: Math.max(1, formData.groupCount - 1)})} className="px-3 py-2 bg-gray-100 hover:bg-gray-200 disabled:opacity-50" disabled={formData.groupCount <= 1}><Minus size={16}/></button>
-                <input type="number" className="w-full text-center focus:outline-none bg-transparent font-medium" value={formData.groupCount} readOnly />
-                <button type="button" onClick={() => setFormData({...formData, groupCount: formData.groupCount + 1})} className="px-3 py-2 bg-gray-100 hover:bg-gray-200"><Plus size={16}/></button>
-              </div>
-            </div>
-          </div>
-          {errors.groupCount && <p className="text-red-500 text-xs flex items-center gap-1"><AlertCircle size={12}/> {errors.groupCount}</p>}
-
-          <div className="grid grid-cols-2 gap-6">
-            <div className="space-y-1.5">
               <label className="text-sm font-bold text-gray-700">Ngày bắt đầu</label>
               <input type="date" className={`w-full border ${errors.startDate ? 'border-red-500' : 'border-gray-300'} rounded-xl px-4 py-2 focus:outline-none focus:border-red-500 text-sm`} value={formData.startDate} onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}/>
               {errors.startDate && <p className="text-red-500 text-xs flex items-center gap-1"><AlertCircle size={12}/> {errors.startDate}</p>}

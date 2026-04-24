@@ -1,10 +1,10 @@
 // File: src/components/RemoveMemberModal.jsx
 import { useState, useEffect } from "react";
 import { X, ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
-// IMPORT HÀM GỌI BE TỪ API
 import { removeMemberFromGroup } from "../services/api";
 
-export default function RemoveMemberModal({ isOpen, onClose, memberName, allMembers = [], onConfirm, groupName = "Nhóm 5" }) {
+// BỔ SUNG: Thêm groupId vào props để biết đang xóa ở nhóm nào
+export default function RemoveMemberModal({ isOpen, onClose, memberName, allMembers = [], onConfirm, groupName, groupId }) {
   const [step, setStep] = useState(1);
   const [newLeaderId, setNewLeaderId] = useState("");
   const [taskAssigneeId, setTaskAssigneeId] = useState("");
@@ -45,10 +45,16 @@ export default function RemoveMemberModal({ isOpen, onClose, memberName, allMemb
   };
 
   const handleFinalConfirm = async () => {
+    if (!memberToDelete || !groupId) {
+      alert("Lỗi: Không xác định được thành viên hoặc nhóm cần xóa.");
+      return;
+    }
+
     setIsLoading(true);
     
-    // 1. GỌI API BACKEND ĐỂ XỬ LÝ (Thay vì dùng setTimeout ở đây)
-    const response = await removeMemberFromGroup(memberToDelete?.id, newLeaderId, taskAssigneeId);
+    // 1. GỌI API BACKEND: Hiện tại BE chỉ nhận id_sinh_vien và id_nhom
+    // newLeaderId và taskAssigneeId giữ lại ở state để sẵn sàng cho nâng cấp BE sau này
+    const response = await removeMemberFromGroup(memberToDelete.id, groupId);
     
     if (response.success) {
       setIsLoading(false);
@@ -59,6 +65,9 @@ export default function RemoveMemberModal({ isOpen, onClose, memberName, allMemb
       // 3. Thông báo và đóng Modal
       alert(`Thành công! Sinh viên ${memberName} đã được mời ra khỏi ${groupName}.`);
       onClose();
+    } else {
+      setIsLoading(false);
+      alert(response.message);
     }
   };
 

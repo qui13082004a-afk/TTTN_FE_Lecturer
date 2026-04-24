@@ -2,8 +2,8 @@
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 
-export default function CreateGroupModal({ isOpen, onClose }) {
-  // Công tắc 2 bước giống hệt bảng Tạo lớp học
+// 1. ĐÃ SỬA: Thêm chữ onSubmit vào đây để nhận hàm từ file ClassDetail truyền vào
+export default function CreateGroupModal({ isOpen, onClose, onSubmit }) {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({ name: "", topic: "", memberCount: 0 });
 
@@ -13,13 +13,24 @@ export default function CreateGroupModal({ isOpen, onClose }) {
       setStep(1);
       setFormData({ name: "", topic: "", memberCount: 0 });
     }
-  }, [isOpen, setStep, setFormData]);
+  }, [isOpen]); // Xóa setStep, setFormData khỏi mảng rỗng cho code gọn hơn
 
   if (!isOpen) return null;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // 2. ĐÃ SỬA: Viết thêm hàm này để gom dữ liệu và bắn ra ngoài
+  const handleSubmit = () => {
+    if (onSubmit) {
+      onSubmit({
+        name: formData.name,
+        topic: formData.topic,
+        maxCount: formData.memberCount // Truyền đúng tên biến mà hàm handleCreateGroupSubmit đang đợi
+      });
+    }
   };
 
   return (
@@ -59,11 +70,13 @@ export default function CreateGroupModal({ isOpen, onClose }) {
             <div className="space-y-6 text-gray-800 px-4 text-[15px]">
               <p><span className="font-bold inline-block w-32">Tên nhóm:</span> {formData.name || "Chưa nhập"}</p>
               <p><span className="font-bold inline-block w-32">Đề tài:</span> {formData.topic || "Chưa nhập"}</p>
-              <p><span className="font-bold inline-block w-32">Số thành viên:</span> {formData.memberCount}</p>
+              <p><span className="font-bold inline-block w-32">Số thành viên:</span> {formData.memberCount || "0"}</p>
             </div>
             <div className="flex justify-end gap-3 mt-10">
               <button onClick={() => setStep(1)} className="bg-gray-400 hover:bg-gray-500 text-white px-6 py-2.5 rounded-xl font-medium transition-colors">Quay lại</button>
-              <button onClick={onClose} className="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-xl font-medium transition-colors">Tạo nhóm</button>
+              
+              {/* 3. ĐÃ SỬA: Đổi onClick từ onClose thành handleSubmit */}
+              <button onClick={handleSubmit} className="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-xl font-medium transition-colors">Tạo nhóm</button>
             </div>
           </>
         )}

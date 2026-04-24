@@ -2,13 +2,13 @@
 import { Folder, Edit, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-// THÊM id, onEditClick, onDeleteClick VÀO ĐÂY:
 export default function ClassCard({ id, title, semester, status, students, groups, onEditClick, onDeleteClick }) {
   const isOpened = status === "Đang mở";
   const navigate = useNavigate();
 
   const handleCardClick = () => {
-    navigate("/classes/detail");
+    // ĐÃ SỬA: Dùng dấu backtick (`) để kẹp biến id vào URL
+    navigate(`/classes/detail/${id}`);
   };
 
   const handleActionClick = (e, actionType) => {

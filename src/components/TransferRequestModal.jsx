@@ -1,35 +1,42 @@
 // File: src/components/TransferRequestModal.jsx
 import { useState, useEffect } from "react";
 import { X, AlertCircle, Loader2 } from "lucide-react";
-// IMPORT API
-import { fetchTransferRequests, fetchGroupStats, acceptTransferRequest, rejectTransferRequest } from "../services/api";
+// SỬA LẠI IMPORT: Dùng fetchGroupsForClass thay vì fetchGroupStats
+import { fetchTransferRequests, fetchGroupsForClass, acceptTransferRequest, rejectTransferRequest } from "../services/api";
 
-export default function TransferRequestModal({ isOpen, onClose }) {
+// BỔ SUNG: Nhận classId từ component cha (ClassDetail)
+export default function TransferRequestModal({ isOpen, onClose, classId }) {
   const [groupStats, setGroupStats] = useState({});
   const [requests, setRequests] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false); // Trạng thái khi đang bấm Đồng ý/Từ chối
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  // Fetch dữ liệu mỗi khi Modal được mở lên
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && classId) {
       const loadData = async () => {
         setIsLoading(true);
         setErrorMessage("");
         
-        const [statsData, requestsData] = await Promise.all([
-          fetchGroupStats(),
-          fetchTransferRequests()
+        const [groupsData, requestsData] = await Promise.all([
+          fetchGroupsForClass(classId),  // Lấy danh sách nhóm để lấy sĩ số
+          fetchTransferRequests(classId) // Lấy yêu cầu chuyển nhóm
         ]);
 
-        setGroupStats(statsData);
+        // Biến mảng nhóm thành Object để dễ check số lượng
+        // VD: { "Nhóm 1": { current: 3, max: 5 }, "Nhóm 2": { current: 5, max: 5 } }
+        const statsObj = {};
+        groupsData.forEach(g => {
+          statsObj[g.name] = { current: g.currentCount, max: g.maxCount };
+        });
+
+        setGroupStats(statsObj);
         setRequests(requestsData);
         setIsLoading(false);
       };
       loadData();
     }
-  }, [isOpen]);
+  }, [isOpen, classId]);
 
   if (!isOpen) return null;
 
@@ -40,6 +47,8 @@ export default function TransferRequestModal({ isOpen, onClose }) {
     if (res.success) {
         setRequests(reqs => reqs.filter(r => r.id !== id));
         setErrorMessage("");
+    } else {
+        setErrorMessage(res.message);
     }
     setIsProcessing(false);
   };
@@ -47,18 +56,18 @@ export default function TransferRequestModal({ isOpen, onClose }) {
   // --- XỬ LÝ: ĐỒNG Ý ---
   const handleAccept = async (req) => {
     setErrorMessage(""); 
-
     const targetStat = groupStats[req.targetGroup];
 
-    // BƯỚC 1: KIỂM TRA RÀNG BUỘC (Frontend check nhanh trước khi gọi BE)
+    // BƯỚC 1: KIỂM TRA RÀNG BUỘC SĨ SỐ
     if (targetStat && targetStat.current >= targetStat.max) {
-      setErrorMessage(`Không thể duyệt! Nhóm ${req.targetGroup} đã đủ số lượng tối đa (${targetStat.max}/${targetStat.max}). Vui lòng Từ chối yêu cầu này.`);
+      setErrorMessage(`Không thể duyệt! ${req.targetGroup} đã đủ số lượng tối đa (${targetStat.max}/${targetStat.max}). Vui lòng Từ chối yêu cầu này.`);
       return; 
     }
 
     setIsProcessing(true);
-    // BƯỚC 2: TRANSACTION
-    const res = await acceptTransferRequest(req.id, req.targetGroup, req.oldGroup);
+    
+    // BƯỚC 2: GỌI API DUYỆT YÊU CẦU
+    const res = await acceptTransferRequest(req.id);
     
     if (res.success) {
         // Cập nhật state ngầm định để tính toán tiếp cho các yêu cầu sau
@@ -69,7 +78,15 @@ export default function TransferRequestModal({ isOpen, onClose }) {
         }));
 
         setRequests(reqs => reqs.filter(r => r.id !== req.id));
-        alert(`Duyệt thành công! Đã chuyển ${req.name} sang Nhóm ${req.targetGroup}.`);
+        alert(`Duyệt thành công! Đã chuyển sinh viên sang ${req.targetGroup}.`);
+        
+        // Nếu duyệt xong hết sạch yêu cầu thì tự động đóng cửa sổ
+        if (requests.length === 1) {
+            onClose();
+            window.location.reload(); // Reload nhẹ để ClassDetail update lại danh sách nhóm
+        }
+    } else {
+        setErrorMessage(res.message);
     }
     setIsProcessing(false);
   };
@@ -90,7 +107,7 @@ export default function TransferRequestModal({ isOpen, onClose }) {
         <div className="p-6">
           {errorMessage && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl flex items-center gap-2 font-medium text-sm animate-in fade-in">
-              <AlertCircle size={20} />
+              <AlertCircle size={20} className="shrink-0" />
               {errorMessage}
             </div>
           )}

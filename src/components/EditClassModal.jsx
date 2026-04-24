@@ -46,14 +46,6 @@ export default function EditClassModal({ isOpen, onClose, classData, onSave }) {
               <option value="HK2 25-26">HK2 25-26</option>
             </select>
           </div>
-          <div className="grid grid-cols-[140px_1fr] items-center">
-            <label className="font-bold text-gray-800 text-sm">Số sinh viên:</label>
-            <input name="students" value={formData.students} onChange={handleChange} type="number" min={0} className="border border-gray-300 rounded-xl px-4 py-2 w-24 text-sm focus:outline-none focus:border-red-500 text-center" />
-          </div>
-          <div className="grid grid-cols-[140px_1fr] items-center">
-            <label className="font-bold text-gray-800 text-sm">Số nhóm:</label>
-            <input name="groups" value={formData.groups} onChange={handleChange} type="number" min={0} className="border border-gray-300 rounded-xl px-4 py-2 w-24 text-sm focus:outline-none focus:border-red-500 text-center" />
-          </div>
         </div>
 
         <div className="flex justify-end gap-3 mt-10">

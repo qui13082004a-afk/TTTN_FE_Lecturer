@@ -1,5 +1,5 @@
 // File: src/App.jsx
-import { useState } from "react"; // <-- Thêm import useState
+import { useState } from "react";
 import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom";
 import { LayoutDashboard, Users, Calendar, Settings as SettingsIcon } from "lucide-react";
 
@@ -10,9 +10,9 @@ import ClassDetail from "./pages/ClassDetail";
 import GroupDetail from "./pages/GroupDetail";
 import CalendarPage from "./pages/CalendarPage";
 import Settings from "./pages/Settings";
-import Login from "./pages/Login"; // <-- Import Trang Đăng nhập
+import Login from "./pages/Login"; 
 
-import { checkAuth, logoutAuth } from "./services/api"; // <-- Import hàm kiểm tra API
+import { checkAuth, logoutAuth } from "./services/api"; 
 
 function App() {
   
@@ -26,12 +26,13 @@ function App() {
     setIsAuthenticated(false); // Cập nhật lại state để đá ra màn hình Login
   };
 
-  // NẾU CHƯA ĐĂNG NHẬP: Ẩn sạch mọi thứ, chỉ hiện đúng trang Login
+  // --- CỔNG BẢO VỆ (AUTH GATE) ---
+  // NẾU CHƯA ĐĂNG NHẬP: Ẩn sạch mọi thứ (Sidebar, Header), chỉ hiện đúng trang Login
   if (!isAuthenticated) {
     return <Login onLoginSuccess={() => setIsAuthenticated(true)} />;
   }
-  // ----------------------------------
 
+  // --- STYLE CHO MENU TƯƠNG TÁC ---
   // Hàm này giúp tự động kiểm tra: Nếu đang click (isActive) thì màu đỏ, nếu không thì màu xám
   const getNavStyle = ({ isActive }) => {
     return isActive 
@@ -75,15 +76,16 @@ function App() {
         {/* CỘT PHẢI: NỘI DUNG CHÍNH */}
         <div className="flex-1 flex flex-col overflow-hidden">
           
-          {/* BƯỚC 2: TRUYỀN HÀM LOGOUT XUỐNG HEADER ĐỂ NÓ CÓ THỂ ĐÁ NGƯỜI DÙNG RA */}
+          {/* Truyền hàm Logout xuống Header */}
           <Header onLogout={handleLogout} /> 
 
           <main className="flex-1 overflow-y-auto bg-white">
             <Routes>
+              {/* Vừa đăng nhập xong, path="/" sẽ tương ứng với Bảng điều khiển */}
               <Route path="/" element={<Dashboard />} />
               <Route path="/classes" element={<Classes />} />
-              <Route path="/classes/detail" element={<ClassDetail />} />
-              <Route path="/classes/group-detail" element={<GroupDetail />} />
+              <Route path="/classes/detail/:id" element={<ClassDetail />} />
+              <Route path="/groups/:groupId" element={<GroupDetail />} />
               <Route path="/calendar" element={<CalendarPage />} />
               <Route path="/settings" element={<Settings />} />
             </Routes>

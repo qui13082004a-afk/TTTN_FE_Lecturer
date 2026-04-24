@@ -1,28 +1,39 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 // File: src/components/AddStudentToGroupModal.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, UserPlus, AlertCircle, Loader2 } from "lucide-react";
 
-export default function AddStudentToGroupModal({ isOpen, onClose, studentInfo, groups = [] }) {
+// ĐÃ SỬA: Thêm chữ onSubmit vào danh sách nhận Props
+export default function AddStudentToGroupModal({ isOpen, onClose, studentInfo, groups = [], onSubmit }) {
   const [selectedGroupId, setSelectedGroupId] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // ĐÃ THÊM: Reset lại trạng thái mỗi khi mở form
+  useEffect(() => {
+    if (isOpen) {
+      setSelectedGroupId("");
+      setLoading(false);
+    }
+  }, [isOpen]);
+
   if (!isOpen || !studentInfo) return null;
 
-  // LOGIC ĐẶC TẢ CỰC QUAN TRỌNG: Lọc ra danh sách nhóm đang "thiếu người"
+  // Lọc ra danh sách nhóm đang "thiếu người"
   const availableGroups = groups.filter(group => group.currentCount < group.maxCount);
 
-  const handleSubmit = (e) => {
+  // ĐÃ SỬA: Hàm xử lý thật, gỡ bỏ cái setTimeout giả lập
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedGroupId) return;
+    if (!selectedGroupId || !onSubmit) return;
 
     setLoading(true);
-    // Giả lập thời gian gọi API gán nhóm
-    setTimeout(() => {
-      setLoading(false);
-      alert(`Đã thêm sinh viên ${studentInfo.name} vào nhóm thành công!`);
-      setSelectedGroupId("");
-      onClose();
-    }, 800);
+    
+    // Gọi hàm onSubmit được truyền từ ClassDetail (Đây mới là chỗ gọi API thật)
+    // Dùng await để cái vòng quay Loading nó chạy cho đến khi API phản hồi xong
+    await onSubmit(selectedGroupId); 
+    
+    setLoading(false);
+    // Lưu ý: onClose() sẽ được ClassDetail tự động gọi nếu API thành công.
   };
 
   const handleClose = () => {
@@ -46,7 +57,7 @@ export default function AddStudentToGroupModal({ isOpen, onClose, studentInfo, g
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Thông tin sinh viên (Chỉ đọc) */}
+          {/* Thông tin sinh viên */}
           <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
             <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Sinh viên được chọn</p>
             <p className="font-bold text-gray-900">{studentInfo.name}</p>
@@ -72,7 +83,6 @@ export default function AddStudentToGroupModal({ isOpen, onClose, studentInfo, g
                 ))}
               </select>
             ) : (
-              // Trạng thái ngoại lệ: Nếu tất cả các nhóm đều đầy
               <div className="flex items-start gap-2 bg-orange-50 text-orange-700 p-4 rounded-xl border border-orange-100">
                 <AlertCircle size={20} className="shrink-0 mt-0.5" />
                 <div className="text-sm">

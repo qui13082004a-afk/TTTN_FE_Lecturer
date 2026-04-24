@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 // File: src/pages/Classes.jsx
 
 import { useState, useEffect } from "react";
