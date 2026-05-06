@@ -1,23 +1,43 @@
-STU TEAMWORK FRONTEND (DÀNH CHO GIẢNG VIÊN)
+## Công nghệ sử dụng
 
-CÔNG NGHỆ SỬ DỤNG:
-- Framework: React 19 (phiên bản 19.2.4)
-- Build Tool: Vite 8 (phiên bản 8.0.4)
-- Styling: Tailwind CSS 3 (phiên bản 3.4.19)
-- Routing: React Router 7 (phiên bản 7.14.0)
-- HTTP Client: Axios
-- Icons: Lucide React
+Dự án được phát triển dựa trên các công nghệ hiện đại:
 
-HƯỚNG DẪN CÀI ĐẶT:
-1. Cài đặt các gói phụ thuộc: npm install
-2. Chạy môi trường phát triển (Development): npm run dev
-3. Xây dựng dự án (Build for Production): npm run build
-4. Kiểm tra lỗi mã (Linting): npm run lint
+* **Framework**: React 19 (`^19.2.4`).
+* **Build Tool**: Vite 8 (`^8.0.4`).
+* **Styling**: Tailwind CSS 3 (`^3.4.19`).
+* **Routing**: React Router 7 (`^7.14.0`).
+* **HTTP Client**: Axios.
+* **Icons**: Lucide React.
 
-CẤU TRÚC THƯ MỤC CHÍNH:
-- /src/assets : Lưu trữ hình ảnh và tài nguyên tĩnh.
-- /src/components : Chứa các UI Component dùng chung (Header, Modals...).
-- /src/pages : Chứa các trang giao diện chính (Login, Dashboard, Classes...).
-- /src/services : Chứa cấu hình gọi API kết nối với Backend.
-- App.jsx & main.jsx : Các file gốc để khởi tạo ứng dụng.
-- vite.config.js : Tệp cấu hình cho Vite.
+## Hướng dẫn cài đặt
+
+1. Cài đặt các gói phụ thuộc:
+```bash
+   npm install
+   ```
+2. Chạy môi trường phát triển (Development):
+```bash
+   npm run dev
+   ```
+3. Xây dựng dự án (Build for Production):
+```bash
+   npm run build
+   ```
+4. Kiểm tra lỗi mã (Linting):
+```bash
+   npm run lint
+   ```
+
+## Cấu trúc thư mục chính
+* ```/src/pages```: Chứa các trang giao diện chính như Home và Login.
+
+* ```/src/assets```: Lưu trữ hình ảnh và tài nguyên tĩnh.
+
+* ```/src/components```: Chứa các UI Component dùng chung (Header, Modals...).
+
+* ```/src/services```: Chứa cấu hình gọi API kết nối với Backend.
+  
+* `App.jsx` & `main.jsx` : Các file gốc để khởi tạo ứng dụng.
+  
+* ```vite.config.js```: Cấu hình cho Vite, bao gồm các plugin cho React và Tailwind.
+
