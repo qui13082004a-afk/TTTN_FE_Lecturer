@@ -29,7 +29,7 @@ Dự án được phát triển dựa trên các công nghệ hiện đại:
    ```
 
 ## Cấu trúc thư mục chính
-* ```/src/pages```: Chứa các trang giao diện chính như Home và Login.
+* ```/src/pages```: Chứa các trang giao diện chính (Login, Dashboard, Classes...).
 
 * ```/src/assets```: Lưu trữ hình ảnh và tài nguyên tĩnh.
 
